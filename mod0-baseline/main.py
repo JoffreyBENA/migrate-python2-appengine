@@ -13,10 +13,12 @@
 # limitations under the License.
 
 # [START mod0_baseline]
+app = Flask(__name__)
+
 import os
 import webapp2
+from flask import Flask, render_template, request
 from google.appengine.ext import ndb
-from google.appengine.ext.webapp import template
 
 class Visit(ndb.Model):
     'Visit entity registers visitor IP address & timestamp'
@@ -39,7 +41,4 @@ class MainHandler(webapp2.RequestHandler):
         tmpl = os.path.join(os.path.dirname(__file__), 'index.html')
         self.response.out.write(template.render(tmpl, {'visits': visits}))
 
-app = webapp2.WSGIApplication([
-    ('/', MainHandler),
-], debug=True)
 # [END mod0_baseline]
