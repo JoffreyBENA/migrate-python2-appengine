@@ -33,12 +33,11 @@ def fetch_visits(limit):
     'get most recent visits'
     return Visit.query().order(-Visit.timestamp).fetch(limit)
 
-class MainHandler(webapp2.RequestHandler):
+@app.route('/')
+def root():
     'main application (GET) handler'
-    def get(self):
-        store_visit(self.request.remote_addr, self.request.user_agent)
-        visits = fetch_visits(10)
-        tmpl = os.path.join(os.path.dirname(__file__), 'index.html')
-        self.response.out.write(template.render(tmpl, {'visits': visits}))
+    store_visit(request.remote_addr, request.user_agent)
+    visits = fetch_visits(10)
+    return render_template('index.html', visits=visits)
 
 # [END mod0_baseline]
