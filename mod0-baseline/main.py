@@ -13,12 +13,12 @@
 # limitations under the License.
 
 # [START mod0_baseline]
+from flask import Flask, render_template, request
+from google.cloud import ndb
+
 app = Flask(__name__)
 
-import os
-import webapp2
-from flask import Flask, render_template, request
-from google.appengine.ext import ndb
+client = ndb.Client()
 
 class Visit(ndb.Model):
     'Visit entity registers visitor IP address & timestamp'
@@ -27,11 +27,14 @@ class Visit(ndb.Model):
 
 def store_visit(remote_addr, user_agent):
     'create new Visit entity in Datastore'
-    Visit(visitor='{}: {}'.format(remote_addr, user_agent)).put()
+    with client.context():
+        Visit(visitor='{}: {}'.format(remote_addr, user_agent)).put()
 
 def fetch_visits(limit):
     'get most recent visits'
-    return Visit.query().order(-Visit.timestamp).fetch(limit)
+    with client.context():
+        return Visit.query().order(-Visit.timestamp).fetch(limit)
+
 
 @app.route('/')
 def root():
@@ -39,5 +42,8 @@ def root():
     store_visit(request.remote_addr, request.user_agent)
     visits = fetch_visits(10)
     return render_template('index.html', visits=visits)
+
+if __name__ == '__main__':
+    app.run()
 
 # [END mod0_baseline]
